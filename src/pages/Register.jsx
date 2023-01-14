@@ -1,8 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthForm } from "../components/AuthForm";
 import { useState } from "react";
 import { AuthText } from "../components/AuthText";
-import { createUserFirebase } from "../config/userFirebase";
+import { createUserFirebase, hola } from "../config/userFirebase";
 import { Alert } from "../components/Alet";
 import { useUserContext } from "../context/UserContext";
 import {sendEmailVerification} from 'firebase/auth'
@@ -12,10 +12,9 @@ export const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordtwo, setPasswordTwo] = useState("");
-  const [displayName, setDispayName] = useState("");
 
-  const {user,error, setError} = useUserContext()
-  console.log(error);
+  const {error, setError, setLoading, loading} = useUserContext()
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,9 +30,11 @@ export const Register = () => {
         msg: 'Todos los campos son obligatorios'
       })
     }
+
+    setLoading(true)
     
     try {
-      const createUser = await createUserFirebase(email, password, displayName);
+      const createUser = await createUserFirebase(email, password);
       await sendEmailVerification(auth.currentUser)
       if(!createUser.emailVerified){
         return setError({
@@ -42,7 +43,7 @@ export const Register = () => {
       }
       setError({})
     } catch (error) {
-      console.log(error);
+
       if(error.code === 'auth/weak-password'){
         return setError({
           msg: 'La contraseña debe tener mínimo 6 carácteres'
@@ -53,8 +54,23 @@ export const Register = () => {
           msg: 'El correo ya está registrado'
         })
       }
+    }finally{
+      setLoading(false)
+      setError({})
     }
   };
+
+  const googleProvider = async () => {
+
+    setLoading(true)
+    try {
+      hola()
+    } catch (error) {
+
+    }finally{
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="bg-white shadow-xl rounded-lg px-8 py-6">
@@ -111,7 +127,7 @@ export const Register = () => {
           </span>
         </div>
         <div className="flex flex-col mt-10 gap-3 mb-3">
-        <button className="py-2 rounded-lg text-gray-500 border border-gray-300 flex gap-3 items-center justify-center hover:bg-gray-200 transition-colors">
+        <button disabled={loading} onClick={googleProvider} type="button" className="py-2 rounded-lg text-gray-500 border border-gray-300 flex gap-3 items-center justify-center hover:bg-gray-200 transition-colors">
           <span>
             <img className="w-5 " src="/1534129544.svg"></img>
           </span>
