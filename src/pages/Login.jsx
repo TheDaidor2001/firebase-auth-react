@@ -2,26 +2,30 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthForm } from "../components/AuthForm";
 import { useState } from "react";
 import { AuthText } from "../components/AuthText";
-import { signInUserFireabse } from "../config/userFirebase";
+import { hola, signInUserFireabse } from "../config/userFirebase";
 import { useUserContext } from "../context/UserContext";
 import { Alert } from "../components/Alet";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { error, setError } = useUserContext();
+  const { error, setError,setLoading } = useUserContext();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if([email,password].includes('')){
       return setError({
         msg: 'Todos los campos son obligatorios'
       })
     }
+
+    setLoading(true)
     try {
       const credentialUser = await signInUserFireabse(email, password);
-      console.log(credentialUser);
+      const{user} = credentialUser
+
+
     } catch (error) {
       console.log(error);
       if(error.code === 'auth/user-not-found'){
@@ -34,13 +38,19 @@ export const Login = () => {
           msg: 'Email o contraseña equivocados'
         })
       }
-
-
-      setTimeout(() => {
-        setError({})
-      }, 3000);
+    }finally{
+      setLoading(false)
     }
   };
+
+  const googleProvider = async () => {
+
+    try {
+      hola()
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="bg-white shadow-xl rounded-lg px-8 py-6">
@@ -83,7 +93,7 @@ export const Login = () => {
           </span>
         </div>
         <div className="flex flex-col mt-10 gap-3 mb-3">
-        <button className="py-2 rounded-lg text-gray-500 border border-gray-300 flex gap-3 items-center justify-center hover:bg-gray-200 transition-colors">
+        <button type="button" onClick={googleProvider} className="py-2 rounded-lg text-gray-500 border border-gray-300 flex gap-3 items-center justify-center hover:bg-gray-200 transition-colors">
           <span>
             <img className="w-5 " src="/1534129544.svg"></img>
           </span>

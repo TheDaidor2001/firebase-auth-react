@@ -1,32 +1,29 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { redirect } from "react-router-dom";
 
-
-import {onAuthStateChanged} from 'firebase/auth'
-import {auth} from '../config/firebase.js'
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../config/firebase.js";
 import { Loading } from "../components/Loading.jsx";
 
 export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(false);
-  const [error, setError] = useState({})
-
-
+  const [error, setError] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const unsuscribe = onAuthStateChanged(auth, (user) => {
       console.log(user);
-      setUser(user)
-      
-    })
-  }, [user])
+      setUser(user);
+    });
+  }, [user]);
 
-
-  if(user === false) return <Loading />
+  if (user === false) return <Loading />;
 
   return (
-    <UserContext.Provider value={{ user, setUser, error, setError }}>
+    <UserContext.Provider
+      value={{ user, setUser, error, setError, setLoading, loading }}
+    >
       {children}
     </UserContext.Provider>
   );

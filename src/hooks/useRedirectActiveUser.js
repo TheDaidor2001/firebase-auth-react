@@ -6,8 +6,9 @@ export const useRedirectActiveUser = (user, path) => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        if(user.emailVerified) {
+        if(user) {
             navigate(path)
+            console.log(path);
         }
     }, [user])
 }
